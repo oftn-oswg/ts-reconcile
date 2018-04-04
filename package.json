@@ -1,0 +1,20 @@
+{
+  "name": "ts-reconcile",
+  "version": "0.1.0",
+  "description": "A set reconciliation library for data synchronization and de-duplication.",
+  "main": "index.js",
+  "repository": "git@github.com:oftn-oswg/ts-reconcile.git",
+  "author": "OFTN Inc. <~@oftn.org>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^5.0.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.0.5",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.8.1"
+  },
+  "scripts": {
+   "tests": "mocha --reporter spec --require ts-node/register 'src/**/*.test.ts'"
+  }
+}
