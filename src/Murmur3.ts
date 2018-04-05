@@ -1,7 +1,4 @@
-function rotateleft32(num: number, amt: number): number {
-    return (num << amt) | (num >>> (32 - amt));
-}
-function mul32(a: number, b: number) {
+function mul32(a: number, b: number): number {
     const a0 = a & 0xffff;
     const b0 = b & 0xffff;
     return ((a >>> 16) * b0 + a0 * (b >>> 16) << 16) + (a0 * b0) >>> 0;
@@ -31,50 +28,53 @@ export function Sum128(data: Uint8Array): Uint32Array {
     const len = data.byteLength;
 
     const blocks = len / 16 | 0;
-    const head = new Uint32Array(buffer, offset, blocks * 4);
-    const tail = new Uint8Array(buffer, offset + blocks * 16);
+    const headlen = blocks * 4;
+    const headstart = offset;
+    const tailstart = offset + blocks * 16;
+    const head = new Uint32Array(buffer, headstart, headlen);
+    const tail = new Uint8Array(buffer, tailstart);
 
     // Head
 
-    for (let i = 0; i < blocks; i++) {
-        let k1 = head[i * 4 + 0];
-        let k2 = head[i * 4 + 1];
-        let k3 = head[i * 4 + 2];
-        let k4 = head[i * 4 + 3];
+    for (let i = 0; i < headlen; i += 4) {
+        let k1 = head[i];
+        let k2 = head[i + 1];
+        let k3 = head[i + 2];
+        let k4 = head[i + 3];
 
         k1 = mul32(k1, c1);
-        k1 = rotateleft32(k1, 15);
+        k1 = (k1 << 15) | (k1 >>> (32 - 15)); // rotateleft32(k1, 15)
         k1 = mul32(k1, c2);
         h1 ^= k1;
 
-        h1 = rotateleft32(h1, 19);
+        h1 = (h1 << 19) | (h1 >>> (32 - 19)); // rotateleft32(h1, 19)
         h1 = h1 + h2 >>> 0;
         h1 = h1 * 5 + 0x561ccd1b >>> 0;
 
         k2 = mul32(k2, c2);
-        k2 = rotateleft32(k2, 16);
+        k2 = (k2 << 16) | (k2 >>> (32 - 16)); // rotateleft32(k2, 16)
         k2 = mul32(k2, c3);
         h2 ^= k2;
 
-        h2 = rotateleft32(h2, 17);
+        h2 = (h2 << 17) | (h2 >>> (32 - 17)); // rotateleft32(h2, 17)
         h2 = h2 + h3 >>> 0;
         h2 = h2 * 5 + 0x0bcaa747 >>> 0;
 
         k3 = mul32(k3, c3);
-        k3 = rotateleft32(k3, 17);
+        k3 = (k3 << 17) | (k3 >>> (32 - 17)); // rotateleft32(k3, 17)
         k3 = mul32(k3, c4);
         h3 ^= k3;
 
-        h3 = rotateleft32(h3, 15);
+        h3 = (h3 << 15) | (h3 >>> (32 - 15)); // rotateleft32(h3, 15)
         h3 = h3 + h4 >>> 0;
         h3 = h3 * 5 + 0x96cd1c35 >>> 0;
 
         k4 = mul32(k4, c4);
-        k4 = rotateleft32(k4, 18);
+        k4 = (k4 << 18) | (k4 >>> (32 - 18)); // rotateleft32(k4, 18)
         k4 = mul32(k4, c1);
         h4 ^= k4;
 
-        h4 = rotateleft32(h4, 13);
+        h4 = (h4 << 13) | (h4 >>> (32 - 13)); // rotateleft32(h4, 13)
         h4 = h4 + h1 >>> 0;
         h4 = h4 * 5 + 0x32ac3b17 >>> 0;
     }
@@ -87,7 +87,7 @@ export function Sum128(data: Uint8Array): Uint32Array {
         case 0xd:
             k4 ^= tail[12];
             k4 = mul32(k4, c4);
-            k4 = rotateleft32(k4, 18);
+            k4 = (k4 << 18) | (k4 >>> (32 - 18)); // rotateleft32(k4, 18)
             k4 = mul32(k4, c1);
             h4 ^= k4;
 
@@ -97,7 +97,7 @@ export function Sum128(data: Uint8Array): Uint32Array {
         case 0x9:
             k3 ^= tail[8];
             k3 = mul32(k3, c3);
-            k3 = rotateleft32(k3, 17);
+            k3 = (k3 << 17) | (k3 >>> (32 - 17)); // rotateleft32(k3, 17)
             k3 = mul32(k3, c4);
             h3 ^= k3;
 
@@ -106,7 +106,7 @@ export function Sum128(data: Uint8Array): Uint32Array {
         case 0x6: k2 ^= tail[5] << 8;
         case 0x5: k2 ^= tail[4] << 0;
             k2 = mul32(k2, c2);
-            k2 = rotateleft32(k2, 16);
+            k2 = (k2 << 16) | (k2 >>> (32 - 16)); // rotateleft32(k2, 16)
             k2 = mul32(k2, c3);
             h2 ^= k2;
 
@@ -115,7 +115,7 @@ export function Sum128(data: Uint8Array): Uint32Array {
         case 0x2: k1 ^= tail[1] << 8;
         case 0x1: k1 ^= tail[0] << 0;
             k1 = mul32(k1, c1);
-            k1 = rotateleft32(k1, 15);
+            k1 = (k1 << 15) | (k1 >>> (32 - 15)); // rotateleft32(k1, 15)
             k1 = mul32(k1, c2);
             h1 ^= k1;
     }
